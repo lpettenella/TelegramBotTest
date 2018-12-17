@@ -14,6 +14,9 @@ from Utente import Utente
 bot = telepot.Bot('548040088:AAFs8Y1Msb4367WkDth_HF30hM2j-yXenNQ')
 dataBase = DataBase()
 domande = list()
+insulti = list()
+insulti.append("stronzo") 
+insulti.append("gay")
 
 def handle(msg):
     content_type, chat_type, chat_id = telepot.glance(msg)
@@ -31,11 +34,12 @@ def handle(msg):
             metti = True
             mex = msg['text'].lower()
             for domanda in domande:
-                if (domanda.domanda == mex) & (len(domanda.risposte))>0:
+                if (domanda.domanda == mex):
                     metti = False
                     r = randint(-1, len(domanda.risposte)-1)
-                    bot.sendMessage(chat_id, domanda.risposte[r], reply_to_message_id = msg['message_id'])
-                    break
+                    if(len(domanda.risposte))>0:
+                        bot.sendMessage(chat_id, domanda.risposte[r], reply_to_message_id = msg['message_id'])
+                        break
             if(metti):
                 domanda = Domanda()
                 domanda.domanda = mex
@@ -52,16 +56,28 @@ def handle(msg):
             for utente in dataBase.utenti:
                 if msg['from']['id'] == utente.id:
                     bot.sendMessage(chat_id,"Hai "+str(utente.coin)+" jjm coin.", reply_to_message_id= msg['message_id'])
+                    break;
         
         if msg['text'] == "lista":
             for utente in dataBase.utenti:
                 print (utente.id)
+                
+        if (msg['text'] == "addInsulto") & (msg['from']['id'] == 660824842):
+            if (insulti.__contains__(msg['reply_to_message']['text'].lower()))==False:
+                insulti.append(msg['reply_to_message']['text'].lower())
             
-        if 'reply_to_message' in msg:
+        if ('reply_to_message' in msg):
+            print ("cacca")
             for domanda in domande:
                 if domanda.domanda == msg['reply_to_message']['text'].lower():
-                    domanda.risposte.append(msg['text'])
+                    domanda.addRisp(msg['text'])
                     print (domanda.risposte[0])
+            for insulto in insulti:
+                if (insulto in msg['text'].lower()) & (("è" in msg['text'])==False) & (("È" in msg['text'])==False):
+                    for utente in dataBase.utenti:
+                        if utente.id == msg['reply_to_message']['from']['id']:
+                            if utente.coin >= 1:
+                                bot.sendMessage(chat_id, "parli tu", reply_to_message_id= msg['message_id'])
                     
         
         if((msg['text'] == "rfoto") | (msg['text'] == "Rfoto")):

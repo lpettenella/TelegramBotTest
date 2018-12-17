@@ -41,10 +41,14 @@ class DataBase():
         for utente in self.utenti:
             if utente.id == id_utente:
                 presente = True
+                utente.mex += 1
+            if utente.mex % 10 == 0:
+                utente.coin += 1
                 break;
         if presente==False:
             utente = Utente()
             utente.id = id_utente
+            utente.mex += 1
             self.utenti.append(utente)
             
             
